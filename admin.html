@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>AstroWalls | Admin Console</title>
+  <link rel="icon" href="logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div class="adm-root">
+  <nav class="adm-sidebar">
+    <div class="adm-logo">👑</div>
+    <div class="adm-nav-btn active" data-nav="upload" title="Upload"><i class="ti ti-upload"></i></div>
+    <div class="adm-nav-btn" data-nav="library" title="Library"><i class="ti ti-photo"></i></div>
+    <div class="adm-nav-btn" data-nav="categories" title="Categories"><i class="ti ti-tag"></i></div>
+   <div class="sidebar-bottom">
+
+  <div class="adm-nav-btn"
+       id="homeBtn"
+       title="Homepage">
+    <i class="ti ti-home"></i>
+  </div>
+
+  <div class="adm-nav-btn"
+       id="logoutAdminBtn"
+       title="Logout">
+    <i class="ti ti-logout"></i>
+  </div>
+
+</div>
+    <!-- <div class="adm-nav-btn nav-bottom" data-nav="analytics" title="Analytics"><i class="ti ti-chart-bar"></i></div>
+    <div class="adm-nav-btn" data-nav="settings" title="Settings"><i class="ti ti-settings"></i></div> -->
+    
+
+
+    <!-- <div class="adm-nav-btn nav-bottom" id="logoutAdminBtn" title="Logout">
+  <i class="ti ti-logout"></i>
+</div> -->
+  </nav>
+
+  <main class="adm-main">
+    <div class="adm-topbar">
+      <div class="adm-title-block">
+        <h1>Astro Walls</h1>
+        <p id="adminEmailDisplay">admin · loading...</p>
+      </div>
+      <div class="adm-badge">● secure session</div>
+    </div>
+
+    <div class="adm-stats" id="statsContainer">
+      <div class="adm-stat">
+  <div class="adm-stat-label">
+    Total Downloads
+  </div>
+
+  <div class="adm-stat-val" id="statDownloads">
+    —
+  </div>
+
+  <div class="adm-stat-sub">
+    📥 All wallpapers
+  </div>
+</div>
+
+<div class="adm-stat">
+  <div class="adm-stat-label">
+    Total Views
+  </div>
+
+  <div class="adm-stat-val" id="statViews">
+    —
+  </div>
+
+  <div class="adm-stat-sub">
+    👁 Live traffic
+  </div>
+</div>
+
+<div class="adm-stat">
+  <div class="adm-stat-label">
+    Most Downloaded
+  </div>
+
+  <div class="adm-stat-val"
+       id="statTopWallpaper">
+    —
+  </div>
+
+  <div class="adm-stat-sub">
+    🏆 Top performer
+  </div>
+</div>
+      <div class="adm-stat">
+  <div class="adm-stat-label">
+    Registered Users
+  </div>
+
+  <div class="adm-stat-val" id="statUsers">
+    —
+  </div>
+
+  <div class="adm-stat-sub">
+    👥 Live user count
+  </div>
+</div>
+      <div class="adm-stat">
+        <div class="adm-stat-label">Total Uploads</div>
+        <div class="adm-stat-val" id="statTotal">—</div>
+        <div class="adm-stat-sub"><span>+ live</span> from Firestore</div>
+      </div>
+      <div class="adm-stat">
+        <div class="adm-stat-label">Categories</div>
+        <div class="adm-stat-val" id="statCategories">5</div>
+        <div class="adm-stat-sub">Dynamic · <span>Smart filter</span></div>
+      </div>
+      <div class="adm-stat">
+        <div class="adm-stat-label">Resolutions</div>
+        <div class="adm-stat-val">4K+</div>
+        <div class="adm-stat-sub">HD · FHD · 2K · <span>8K ready</span></div>
+      </div>
+    </div>
+
+    <div class="adm-card" id="uploadCard">
+      <div class="adm-card-header">
+        <span class="adm-card-title"><i class="ti ti-cloud-upload" style="margin-right: 6px;"></i> New Asset</span>
+      </div>
+      <div class="adm-form-grid">
+        <div class="adm-field">
+          <label class="adm-label" for="wallName">Wallpaper Title *</label>
+          <input class="adm-input" id="wallName" type="text" placeholder="Ex: Neon Blade" autocomplete="off">
+        </div>
+        <div class="adm-field">
+          <label class="adm-label" for="wallCategory">Category *</label>
+          <input class="adm-input" id="wallCategory" type="text" placeholder="Anime, Nature, Cars...">
+        </div>
+        <div class="adm-field full">
+          <label class="adm-label" for="wallUrl"> Select Wallpaper URL *</label>
+          <div class="adm-url-wrap">
+            <i class="ti ti-link adm-url-icon"></i>
+            <input class="adm-input" id="wallUrl" type="text" placeholder="https://example.com/image.jpg">
+          </div>
+        </div>
+        <div class="adm-field">
+          <label class="adm-label" for="wallResolution">Resolution</label>
+          <select class="adm-input adm-select" id="wallResolution">
+            <option>HD</option>
+            <option>Full HD</option>
+            <option>2K</option>
+            <option>4K</option>
+            <option>8K</option>
+          </select>
+        </div>
+      </div>
+      <div class="adm-footer">
+        <span class="adm-hint">* name and image URL required</span>
+        <button class="adm-btn" id="uploadBtn">
+          <i class="ti ti-plus"></i> Publish wallpaper
+        </button>
+      </div>
+    </div>
+
+    <div class="adm-card">
+      <p class="adm-recent-title"><i class="ti ti-history" style="margin-right: 6px;"></i> Recent uploads · live feed</p>
+      <div id="recentListContainer">
+        <div class="adm-row"><div class="adm-row-left"><div class="adm-dot"></div><div class="adm-thumb">—</div><div><p class="adm-row-name">Loading assets...</p></div></div></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script type="module" src="admin.js"></script>
+</body>
+</html>

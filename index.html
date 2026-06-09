@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AstroWalls</title>
+  <link rel="icon" href="logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+  body {
+    visibility: visible;
+    opacity: 1;
+  }
+</style>
+</head>
+<body class="dark">
+
+  <!-- ── NAVBAR ── -->
+  <nav class="navbar">
+    <a href="#" class="logo">Astro<span>Walls</span></a>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <a href="admin.html">Admin</a>
+      <li><a href="#" data-cat="all" class="active">Home</a></li>
+      <li><a href="#" data-cat="nature">Nature</a></li>
+      <li><a href="#" data-cat="cars">Cars</a></li>
+      <li><a href="#" data-cat="anime">Anime</a></li>
+      <li><a href="#" data-cat="gaming">Gaming</a></li>
+      <li><a href="#favorites">Favorites</a></li>
+      <li><a href="#contact">Contact us</a></li>
+      <li><a href="profile.html">My Profile</a></li>
+    </ul>
+    <button class="logout-btn" id="logoutBtn" aria-label="Logout">Logout</button>
+    <button class="theme-btn" id="themeBtn" aria-label="Toggle theme">🌙</button>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <div class="hero-content">
+      <p class="hero-eyebrow">4K · HD · Mobile · Desktop</p>
+      <h1 class="hero-title">Stunning Wallpapers<br/>For Every Screen</h1>
+      <p class="hero-sub">Thousands of handpicked wallpapers, completely free.</p>
+      <a href="#gallery" class="btn-primary">Explore Gallery</a>
+    </div>
+    <div class="hero-overlay"></div>
+  </section>
+
+  <!-- ── CATEGORIES ── -->
+  <section class="categories" id="categories">
+    <div class="section-header">
+      <h2>Browse <span>Categories</span></h2>
+    </div>
+    <div class="category-grid">
+      <button class="cat-card active" data-cat="all"><span class="cat-icon">🌐</span><span>All</span></button>
+      <button class="cat-card" data-cat="nature"><span class="cat-icon">🌿</span><span>Nature</span></button>
+      <button class="cat-card" data-cat="cars"><span class="cat-icon">🚗</span><span>Cars</span></button>
+      <button class="cat-card" data-cat="anime"><span class="cat-icon">🎌</span><span>Anime</span></button>
+      <button class="cat-card" data-cat="gaming"><span class="cat-icon">🎮</span><span>Gaming</span></button>
+      <button class="cat-card" data-cat="space"><span class="cat-icon">🪐</span><span>Space</span></button>
+    </div>
+  </section>
+
+  <!-- ── GALLERY ── -->
+  <section class="gallery-section" id="gallery">
+    <div class="gallery-toolbar">
+      <h2>Gallery</h2>
+      <div class="search-wrap">
+        <input type="text" id="search" placeholder="Search wallpapers…" />
+      </div>
+      <select id="resolutionFilter">
+        <option value="all">All</option>
+        <option value="hd">HD</option>
+        <option value="fullhd">Full HD</option>
+        <option value="2k">2K</option>
+        <option value="4k">4K</option>
+        <option value="8k">8K</option>
+      </select>
+    </div>
+    <div class="gallery-grid" id="galleryGrid"></div>
+    <p class="no-results" id="noResults" hidden>No wallpapers found. Try a different search.</p>
+  </section>
+
+  <!-- ── MODAL ── -->
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Wallpaper preview">
+    <div class="modal-inner">
+      <button class="modal-close" id="modalClose" aria-label="Close preview">&times;</button>
+      <img id="modalImg" src="" alt="Preview" />
+      <div class="modal-stats">
+        <span id="modalViews">👁 0 views</span>
+        <span id="modalDownloads">⬇ 0 downloads</span>
+      </div>
+      <button class="modal-dl" id="modalDl">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Wallpaper
+      </button>
+    </div>
+  </div>
+
+  <!-- ── FAVORITES ── -->
+  <section class="gallery-section" id="favorites">
+    <div class="gallery-toolbar">
+      <h2>❤️ Favorite Wallpapers</h2>
+    </div>
+    <div class="gallery" id="favoritesGrid"></div>
+    <p id="emptyFavs">No favorite wallpapers yet.</p>
+  </section>
+<!-- -----------------------------------------CONTACT US SECTION ---------------------------------- -->
+
+<section class="contact-section" id="contact">
+  <div class="contact-container">
+
+    <h2>Contact <span>Us</span></h2>
+    <p>Have a suggestion, wallpaper request, or feedback? Send us a message.</p>
+
+    <form id="contactForm" class="contact-form">
+
+      <input
+        type="text"
+        id="contactName"
+        placeholder="Your Name"
+        required
+      >
+
+      <input
+        type="email"
+        id="contactEmail"
+        placeholder="Your Email"
+        required
+      >
+
+      <textarea
+        id="contactMessage"
+        rows="6"
+        placeholder="Your Message"
+        required
+      ></textarea>
+
+      <button type="submit">
+        Send Message
+      </button>
+
+    </form>
+
+  </div>
+</section>
+
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <p class="footer-logo">Astro<span>Walls</span></p>
+      <p class="footer-copy">© 2026 AstroWalls — All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>

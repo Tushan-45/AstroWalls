@@ -1,0 +1,198 @@
+<!-- profile.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>AstroWalls — My Profile</title>
+  <!-- Google Fonts + Font Awesome Icons -->
+  <link rel="icon" href="logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="profile.css">
+</head>
+<body>
+
+<div class="dashboard">
+  <!-- animated gradient orb background effect -->
+  <div class="bg-orb"></div>
+  <div class="bg-orb second"></div>
+
+  <!-- profile header with glassmorphism -->
+  <div class="profile-card">
+    <div class="avatar-wrapper">
+      <div class="avatar-glow"></div>
+      <div class="avatar">
+  <img
+  id="profilePhoto"
+  src="logo.png"
+  alt="Profile Photo">
+</div>
+      <div class="avatar-badge">
+        <i class="fas fa-camera"></i>
+      </div>
+    </div>
+    <h1 id="profileName">Loading...</h1>
+    <div class="user-badge">
+      <i class="fas fa-star-of-life"></i>
+      <span>Astro Creator</span>
+    </div>
+    <p id="profileEmail" class="profile-email">
+      <i class="fas fa-envelope"></i> 
+      <span>Loading...</span>
+    </p>
+    <div class="member-since">
+  <i class="far fa-calendar-alt"></i>
+  <span id="creationDate">Loading...</span>
+</div>
+  </div>
+
+  <!-- stats grid with icons + hover animation -->
+  <div class="stats-grid">
+    <div class="stat-box">
+      <div class="stat-icon"><i class="fas fa-heart"></i></div>
+      <h2 id="favCount">0</h2>
+      <span>Favorites</span>
+      <div class="stat-trend"><i class="fas fa-chart-line"></i> cosmic vibes</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-icon"><i class="fas fa-download"></i></div>
+      <h2 id="downloadCount">0</h2>
+      <span>Downloads</span>
+      <div class="stat-trend"><i class="fas fa-cloud-download-alt"></i> total pulls</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-icon"><i class="fas fa-eye"></i></div>
+      <h2 id="viewCount">0</h2>
+      <span>Views</span>
+      <div class="stat-trend"><i class="fas fa-chart-simple"></i> global reach</div>
+    </div>
+  </div>
+
+  <!-- account card with modern layout + additional info -->
+  <div class="account-card">
+    <div class="account-header">
+      <i class="fas fa-user-astronaut"></i>
+      <h2>Account Information</h2>
+      <div class="badge-active">
+        <i class="fas fa-circle"></i> Active User
+      </div>
+    </div>
+    <div class="info-row">
+      <div class="info-label">
+        <i class="fas fa-envelope-open-text"></i>
+        <strong>Email address</strong>
+      </div>
+      <div class="info-value" id="accountEmail">—</div>
+      <div class="info-verified"><i class="fas fa-check-circle"></i> verified</div>
+    </div>
+   <div class="info-row">
+  <div class="info-label">
+    <i class="fas fa-shield-alt"></i>
+    <strong>Account Type</strong>
+  </div>
+
+  <div class="info-value" id="accountType">
+    Loading...
+  </div>
+
+  <div class="info-verified">
+    <i class="fas fa-crown"></i>
+    account type
+  </div>
+</div>
+    <!-- <div class="info-row"> -->
+  <!-- <div class="info-label">
+    <i class="fas fa-calendar-alt"></i>
+    <strong>Account Created</strong>
+  </div> -->
+
+  <!-- <div class="info-value" id="creationDate">
+  Loading...
+</div> -->
+
+  <!-- <div class="info-verified">
+    <i class="fas fa-check-circle"></i>
+    registered
+  </div> -->
+<!-- </div> -->
+    <div class="info-row">
+  <div class="info-label">
+    <i class="fas fa-globe"></i>
+    <strong>Country</strong>
+  </div>
+
+  <div class="info-value" id="countryName">
+    Loading...
+  </div>
+
+  <div class="info-verified">
+    <i class="fas fa-map-marker-alt"></i>
+    detected
+  </div>
+</div>
+
+  <div class="profile-edit-grid">
+      <div class="account-header">
+    <i class="fas fa-user-edit"></i>
+    <h2>Edit Profile</h2>
+  </div>
+
+  <div class="edit-field">
+    <label>
+      <i class="fas fa-user"></i>
+      Username
+    </label>
+
+    <input
+      type="text"
+      id="editName"
+      placeholder="Enter your username">
+  </div>
+
+  <div class="edit-field">
+    <label>
+      <i class="fas fa-image"></i>
+      Profile Photo URL
+    </label>
+
+    <input
+      type="text"
+      id="editPhoto"
+      placeholder="https://example.com/photo.jpg">
+  </div>
+
+</div>
+
+<button id="saveProfileBtn" class="save-profile-btn">
+  <i class="fas fa-save"></i>
+  Save Profile
+</button>
+
+  <!-- extra cool element: wallpaper quote / stats dynamic message -->
+  <div class="quote-strip">
+    <i class="fas fa-quote-left"></i>
+    <span id="dynamicQuote">collecting stellar wallpapers</span>
+    <i class="fas fa-quote-right"></i>
+  </div>
+
+ <div class="action-buttons">
+
+  <a href="index.html" class="home-btn">
+    <i class="fas fa-home"></i>
+    Home
+  </a>
+
+  <button id="logoutBtn" class="logout-btn">
+    <i class="fas fa-rocket"></i>
+    Logout
+  </button>
+
+</div>
+
+<script type="module" src="profile.js?v=2"></script>
+
+</body>
+</html>
