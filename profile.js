@@ -143,8 +143,13 @@ onAuthStateChanged(auth, async (user) => {
   { merge: true }
 );
 
-  const displayName =
-    user.displayName || "AstroWalls User";
+const userRef = doc(db, "users", user.uid);
+const userSnap = await getDoc(userRef);
+
+const displayName =
+  userSnap.exists()
+    ? userSnap.data().name || "AstroWalls User"
+    : "AstroWalls User";
 
   const email =
     user.email || "No Email";

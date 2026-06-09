@@ -396,16 +396,20 @@ async function loadWallpapers() {
    DOM CONTENT LOADED
 ════════════════════════════════════════════ */
 document.addEventListener("DOMContentLoaded", async () => {
+
   document.body.style.visibility = "visible";
-document.body.style.opacity = "1";
+  document.body.style.opacity = "1";
+
   const body = document.body;
 
   /* ── THEME TOGGLE ── */
   const themeBtn = document.getElementById("themeBtn");
+
   if (localStorage.getItem("theme") === "light") {
     body.classList.add("light");
     if (themeBtn) themeBtn.textContent = "☀️";
   }
+
   themeBtn?.addEventListener("click", () => {
     body.classList.toggle("light");
     const isLight = body.classList.contains("light");
@@ -415,6 +419,7 @@ document.body.style.opacity = "1";
 
   /* ── LOGOUT ── */
   const auth = getAuth(app);
+
   document.getElementById("logoutBtn")?.addEventListener("click", async () => {
     await signOut(auth);
     localStorage.removeItem("userEmail");
@@ -424,10 +429,16 @@ document.body.style.opacity = "1";
 
   /* ── HAMBURGER ── */
   const hamburger = document.getElementById("hamburger");
-  const navLinks  = document.getElementById("navLinks");
-  hamburger?.addEventListener("click", () => navLinks.classList.toggle("open"));
+  const navLinks = document.getElementById("navLinks");
+
+  hamburger?.addEventListener("click", () => {
+    navLinks.classList.toggle("open");
+  });
+
   document.querySelectorAll(".nav-links a").forEach(link => {
-    link.addEventListener("click", () => navLinks.classList.remove("open"));
+    link.addEventListener("click", () => {
+      navLinks.classList.remove("open");
+    });
   });
 
   /* ── SEARCH + RESOLUTION ── */
@@ -436,11 +447,18 @@ document.body.style.opacity = "1";
 
   /* ── MODAL CLOSE ── */
   document.getElementById("modalClose")?.addEventListener("click", closeModal);
-  document.getElementById("modal")?.addEventListener("click", e => {
-    if (e.target === document.getElementById("modal")) closeModal();
+
+  document.getElementById("modal")?.addEventListener("click", (e) => {
+    if (e.target === document.getElementById("modal")) {
+      closeModal();
+    }
   });
-  document.addEventListener("keydown", e => {
-    if (e.key === "Escape" && document.getElementById("modal")?.classList.contains("open")) {
+
+  document.addEventListener("keydown", (e) => {
+    if (
+      e.key === "Escape" &&
+      document.getElementById("modal")?.classList.contains("open")
+    ) {
       closeModal();
     }
   });
@@ -453,10 +471,16 @@ document.body.style.opacity = "1";
 
   /* ── NAVBAR SCROLL ── */
   const navbar = document.querySelector(".navbar");
+
   window.addEventListener("scroll", () => {
-    navbar.style.background = window.scrollY > 20
-      ? (body.classList.contains("light") ? "rgba(244,244,240,0.95)" : "rgba(13,13,15,0.95)")
-      : "";
+    navbar.style.background =
+      window.scrollY > 20
+        ? (
+            body.classList.contains("light")
+              ? "rgba(244,244,240,0.95)"
+              : "rgba(13,13,15,0.95)"
+          )
+        : "";
   }, { passive: true });
 
   /* ── LOAD DATA ── */
@@ -465,35 +489,43 @@ document.body.style.opacity = "1";
 
   renderFavorites();
 
+  /* ===============================
+     CONTACT FORM
+  =============================== */
 
+  const contactForm = document.getElementById("contactForm");
 
-// ===============================
-// CONTACT FORM
-// ===============================
-const contactForm = document.getElementById("contactForm");
+  if (contactForm) {
 
-if (contactForm) {
+    contactForm.addEventListener("submit", async (e) => {
 
-  contactForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    e.preventDefault();
+      const name = document.getElementById("contactName").value;
+      const email = document.getElementById("contactEmail").value;
+      const message = document.getElementById("contactMessage").value;
 
-    const name = document.getElementById("contactName").value;
-    const email = document.getElementById("contactEmail").value;
-    const message = document.getElementById("contactMessage").value;
+      try {
 
-    await addDoc(collection(db, "contactMessages"), {
-      name,
-      email,
-      message,
-      createdAt: new Date()
+        await addDoc(collection(db, "contactMessages"), {
+          name,
+          email,
+          message,
+          createdAt: new Date()
+        });
+
+        alert("Message sent successfully!");
+        contactForm.reset();
+
+      } catch (error) {
+
+        console.error(error);
+        alert("Failed to send message.");
+
+      }
+
     });
 
-    alert("Message sent successfully!");
+  }
 
-    contactForm.reset();
-
-  });
-
-}
 });
