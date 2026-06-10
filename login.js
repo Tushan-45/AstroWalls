@@ -1,10 +1,11 @@
-import { auth, db } from "./firebase-config.js";
-
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import { auth, db } from "./firebase-config.js";
+import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // If already logged in, go straight to main page
 onAuthStateChanged(auth, user => {
@@ -55,14 +56,27 @@ authBtn.addEventListener("click", async () => {
     btnText.textContent = isLogin ? "Signing in…" : "Creating account…";
 
     try {
-        if (isLogin) {
-            await signInWithEmailAndPassword(auth, email, password);
+       if (isLogin) {
+            const cred = await signInWithEmailAndPassword(auth, email, password);
             localStorage.setItem("userEmail", email);
+            // Update lastLogin in Firestore
+            await setDoc(doc(db, "users", cred.user.uid), {
+                email: email,
+                lastLogin: Date.now()
+            }, { merge: true });
             showToast("Signed in successfully!", "success");
             setTimeout(() => { window.location.href = "index.html"; }, 800);
         } else {
-            await createUserWithEmailAndPassword(auth, email, password);
+            const cred = await createUserWithEmailAndPassword(auth, email, password);
             localStorage.setItem("userEmail", email);
+            // Save new user to Firestore
+            await setDoc(doc(db, "users", cred.user.uid), {
+                email: email,
+                name: email.split("@")[0],
+                photo: "",
+                createdAt: Date.now(),
+                lastLogin: Date.now()
+            });
             showToast("Account created! Welcome 🎉", "success");
             setTimeout(() => { window.location.href = "index.html"; }, 800);
         }

@@ -17,10 +17,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 import {
-  getAuth,
-  signOut
+  getAuth, signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
 
 const firebaseConfig = {
   apiKey: "AIzaSyCzNWt6-3zVZUTqHF2KiXOdzv5Js8Sa-Qw",
@@ -31,8 +29,9 @@ const firebaseConfig = {
   appId: "1:1067631192577:web:af3140c350bec490e76e00"
 };
 
-const app = initializeApp(firebaseConfig);
-const db  = getFirestore(app);
+const app  = initializeApp(firebaseConfig);
+const db   = getFirestore(app);
+const auth = getAuth(app);
 
 /* ─────────────────────────────────────────────
    IN-MEMORY COUNTER CACHE
@@ -79,11 +78,11 @@ async function incrementView(docId) {
   refreshCardUI(docId);
 
   // Persist to Firestore in the background
-  try {
+ try {
     await updateDoc(doc(db, "wallpapers", docId), { views: increment(1) });
+   if (auth.currentUser) await setDoc(doc(db, "users", auth.currentUser.uid), { views: increment(1) }, { merge: true });
   } catch (err) {
-    console.error("Failed to update view count:", err);
-    // Roll back UI on error
+    console.error("View update failed:", err);
     counterCache[docId].views -= 1;
     refreshCardUI(docId);
   }
@@ -98,10 +97,11 @@ async function incrementDownload(docId) {
   counterCache[docId].downloads += 1;
   refreshCardUI(docId);
 
-  try {
+ try {
     await updateDoc(doc(db, "wallpapers", docId), { downloads: increment(1) });
+   if (auth.currentUser) await setDoc(doc(db, "users", auth.currentUser.uid), { downloads: increment(1) }, { merge: true });
   } catch (err) {
-    console.error("Failed to update download count:", err);
+    console.error("Download update failed:", err);
     counterCache[docId].downloads -= 1;
     refreshCardUI(docId);
   }
@@ -418,7 +418,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   /* ── LOGOUT ── */
-  const auth = getAuth(app);
+  // const auth = getAuth(app);
 
   document.getElementById("logoutBtn")?.addEventListener("click", async () => {
     await signOut(auth);

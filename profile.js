@@ -1,10 +1,9 @@
 // profile.js
-import { auth } from "./firebase-config.js";
+import { auth, db } from "./firebase-config.js";
 import {
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
 import {
   collection,
   getDocs,
@@ -13,341 +12,273 @@ import {
   getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import { db } from "./firebase-config.js";
-
-// Helper to get dynamic downloads & views from localStorage (simulate activity)
-// We extend original logic: downloads + views counters can be stored separately for richer stats
+/* ══════════════════════════════════════════════
+   LOCAL STATS
+══════════════════════════════════════════════ */
 function loadUserStats() {
-  // favorites from localStorage (preserved from your original)
-  const favsRaw = localStorage.getItem("favs");
   let favorites = [];
-  try {
-    favorites = favsRaw ? JSON.parse(favsRaw) : [];
-  } catch(e) { favorites = []; }
-  
-  // Downloads: store separate count for demo realism
+  try { favorites = JSON.parse(localStorage.getItem("favs") || "[]"); } catch(e) {}
+
   let downloads = localStorage.getItem("user_downloads");
   if (downloads === null) {
-    // seed some random starter number? just make it 0 initially but you can keep persistent
     downloads = 0;
     localStorage.setItem("user_downloads", "0");
   } else {
     downloads = parseInt(downloads, 10);
   }
-  
-  // Views: store separate simulated counter based on page visits or increment logic
+
   let views = localStorage.getItem("user_views");
   if (views === null) {
-    views = 42;  // a little starting charm
-    localStorage.setItem("user_views", views.toString());
+    views = 0;
+    localStorage.setItem("user_views", "0");
   } else {
     views = parseInt(views, 10);
   }
-  
-  // increase views by 1 each time profile loads (realistic user stats)
+
+  // increment views each time profile loads
   views += 1;
   localStorage.setItem("user_views", views.toString());
-  
+
   return { favorites, downloads, views };
 }
 
-async function loadRealStats() {
-
-  const snapshot = await getDocs(
-    collection(db, "wallpapers")
-  );
-
-  let totalViews = 0;
-  let totalDownloads = 0;
-
-  snapshot.forEach((doc) => {
-
-    const wall = doc.data();
-
-    totalViews += wall.views || 0;
-    totalDownloads += wall.downloads || 0;
-
-  });
-
-  const viewEl =
-    document.getElementById("viewCount");
-
-  const downloadEl =
-    document.getElementById("downloadCount");
-
-  if (viewEl) {
-    viewEl.innerText = totalViews;
+async function loadRealStats(uid) {
+  try {
+    const userSnap   = await getDoc(doc(db, "users", uid));
+    const viewEl     = document.getElementById("viewCount");
+    const downloadEl = document.getElementById("downloadCount");
+    if (userSnap.exists()) {
+      const data = userSnap.data();
+      if (viewEl)     viewEl.innerText     = data.views     || 0;
+      if (downloadEl) downloadEl.innerText = data.downloads || 0;
+    } else {
+      if (viewEl)     viewEl.innerText     = 0;
+      if (downloadEl) downloadEl.innerText = 0;
+    }
+  } catch(e) {
+    console.error("loadRealStats error:", e);
   }
-
-  if (downloadEl) {
-    downloadEl.innerText = totalDownloads;
-  }
-
 }
 
+
+/* ══════════════════════════════════════════════
+   UPDATE STATS UI
+══════════════════════════════════════════════ */
 function updateStatsUI() {
   const { favorites, downloads, views } = loadUserStats();
-  const favCountEl = document.getElementById("favCount");
+
+  const favCountEl      = document.getElementById("favCount");
   const downloadCountEl = document.getElementById("downloadCount");
-  const viewCountEl = document.getElementById("viewCount");
-  
-  if (favCountEl) favCountEl.innerText = favorites.length;
+  const viewCountEl     = document.getElementById("viewCount");
+
+  if (favCountEl)      favCountEl.innerText      = favorites.length;
   if (downloadCountEl) downloadCountEl.innerText = downloads;
-  if (viewCountEl) viewCountEl.innerText = views;
-  
-  // dynamic quote based on stats
+  if (viewCountEl)     viewCountEl.innerText     = views;
+
+  // dynamic quote
   const quoteSpan = document.getElementById("dynamicQuote");
   if (quoteSpan) {
-    const totalFavs = favorites.length;
-    if (totalFavs > 20) quoteSpan.innerText = "wallpaper galaxy master ✨";
-    else if (totalFavs > 5) quoteSpan.innerText = "curating cosmic favorites";
-    else quoteSpan.innerText = "start your astro collection today";
-    
-    if (downloads > 50) quoteSpan.innerText = "legendary downloader 🚀";
-    else if (views > 200) quoteSpan.innerText = "viral cosmic explorer 🌌";
+    if      (downloads > 50)        quoteSpan.innerText = "legendary downloader 🚀";
+    else if (views > 200)           quoteSpan.innerText = "viral cosmic explorer 🌌";
+    else if (favorites.length > 20) quoteSpan.innerText = "wallpaper galaxy master ✨";
+    else if (favorites.length > 5)  quoteSpan.innerText = "curating cosmic favorites";
+    else                            quoteSpan.innerText = "start your astro collection today";
   }
 }
 
-// increment downloads simulation if needed? already the download count will only be changed when user downloads elsewhere.
-// But to maintain consistency we also provide a method that could be used on wallpaper page. For profile, we update UI.
-
-// Add event listener for manual download increment (example cross-module hook not required, but we add global function for dev)
+/* ══════════════════════════════════════════════
+   GLOBAL DOWNLOAD INCREMENT HOOK
+══════════════════════════════════════════════ */
 window.incrementDownloads = function(amount = 1) {
-  let current = localStorage.getItem("user_downloads");
-  let newCount = (current ? parseInt(current, 10) : 0) + amount;
+  const current  = parseInt(localStorage.getItem("user_downloads") || "0", 10);
+  const newCount = current + amount;
   localStorage.setItem("user_downloads", newCount.toString());
   updateStatsUI();
   return newCount;
 };
 
-// onAuthStateChanged handles redirect and display of user info
-// ==============================
-// AUTH CHECK + LOAD USER PROFILE
-// ==============================
-// ==============================
-// AUTH CHECK + LOAD USER PROFILE
-// ==============================
+/* ══════════════════════════════════════════════
+   AUTH + PROFILE LOAD
+══════════════════════════════════════════════ */
 onAuthStateChanged(auth, async (user) => {
-
   if (!user) {
     window.location.href = "login.html";
     return;
   }
-  await setDoc(
-  doc(db, "users", user.uid),
-  {
+
+  const adminEmail  = "tushansinha01@gmail.com";
+  const displayName = user.displayName || user.email.split("@")[0] || "AstroWalls User";
+  const email       = user.email || "No Email";
+
+  // Update lastLogin in Firestore
+ await setDoc(doc(db, "users", user.uid), {
     email: user.email,
-    name: user.displayName || "",
     lastLogin: Date.now()
-  },
-  { merge: true }
-);
+  }, { merge: true }); 
 
-const userRef = doc(db, "users", user.uid);
-const userSnap = await getDoc(userRef);
+   // ── NAME (will be overridden by Firestore data below)
 
-const displayName =
-  userSnap.exists()
-    ? userSnap.data().name || "AstroWalls User"
-    : "AstroWalls User";
+  const profileNameEl = document.getElementById("profileName");
 
-  const email =
-    user.email || "No Email";
+  // ── EMAIL
+  const accountEmailEl = document.getElementById("accountEmail");
+  if (accountEmailEl) accountEmailEl.innerText = email;
 
-  // Name
-  document.getElementById("profileName").innerText =
-    displayName;
+  const profileEmailEl = document.getElementById("profileEmail");
+  if (profileEmailEl) profileEmailEl.innerHTML = `<i class="fas fa-envelope"></i> <span>${email}</span>`;
 
-  // Email
-  document.getElementById("accountEmail").innerText =
-    email;
+  // ── ACCOUNT TYPE
+  const accountTypeEl = document.getElementById("accountType");
+  if (accountTypeEl) {
+    accountTypeEl.innerText = email === adminEmail ? "👑 Administrator" : "⭐ Explorer";
+  }
 
-  document.getElementById("profileEmail").innerHTML =
-    `<i class="fas fa-envelope"></i> <span>${email}</span>`;
-
-  // Account Creation Date
-  const creationDateEl =
-    document.getElementById("creationDate");
-
+  // ── CREATION DATE
+  const creationDateEl = document.getElementById("creationDate");
   if (creationDateEl) {
-
-   const creationTime = user.metadata?.creationTime;
+    const creationTime = user.metadata?.creationTime;
     if (creationTime) {
-      const createdDate = new Date(creationTime);
-     creationDateEl.textContent = createdDate.toLocaleDateString("en-US", {
-  day: "numeric",
-  month: "long",
-  year: "numeric"
-});
+      creationDateEl.textContent = new Date(creationTime).toLocaleDateString("en-US", {
+        day: "numeric", month: "long", year: "numeric"
+      });
     } else {
-      creationDateEl.textContent = "Not available";
+      // fallback: read from Firestore
+      try {
+        const userSnap = await getDoc(doc(db, "users", user.uid));
+        if (userSnap.exists() && userSnap.data().createdAt) {
+          creationDateEl.textContent = new Date(userSnap.data().createdAt).toLocaleDateString("en-US", {
+            day: "numeric", month: "long", year: "numeric"
+          });
+        } else {
+          creationDateEl.textContent = "—";
+        }
+      } catch(e) {
+        creationDateEl.textContent = "—";
+      }
     }
-
   }
 
-  // Profile Photo
-  const profilePhoto =document.getElementById("profilePhoto");
-
+  // ── PROFILE PHOTO
+  const profilePhoto = document.getElementById("profilePhoto");
   if (profilePhoto) {
+    profilePhoto.src = user.photoURL ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=0D0D0D&color=d9ff3f`;
+  }
 
-    if (user.photoURL) {
+  // ── LOAD FIRESTORE USER DOC (name/photo overrides)
+  try {
+    const userSnap = await getDoc(doc(db, "users", user.uid));
+    if (userSnap.exists()) {
+      const data = userSnap.data();
+      // Use saved name, fallback to email prefix
+      const savedName = (data.name && data.name.trim()) ? data.name : displayName;
+      if (profileNameEl) profileNameEl.innerText = savedName;
+      const editNameEl = document.getElementById("editName");
+      if (editNameEl) editNameEl.value = savedName;
 
-      profilePhoto.src = user.photoURL;
-
+      if (data.photo && data.photo.trim() !== "" && profilePhoto) {
+        profilePhoto.src = data.photo;
+        const editPhotoEl = document.getElementById("editPhoto");
+        if (editPhotoEl) editPhotoEl.value = data.photo;
+      }
     } else {
-
-      profilePhoto.src =
-        "https://ui-avatars.com/api/?name=" +
-        encodeURIComponent(displayName);
-
+      // No doc yet, use displayName fallback
+      if (profileNameEl) profileNameEl.innerText = displayName;
     }
-
-  }
-const accountTypeEl =
-  document.getElementById("accountType");
-
-const adminEmail = "tushansinha01@gmail.com";
-
-if (accountTypeEl) {
-
-  if (email === adminEmail) {
-
-    accountTypeEl.innerText =
-      "👑 Administrator";
-
-  } else {
-
-    accountTypeEl.innerText =
-      "⭐ Explorer";
-
+  } catch(e) {
+    console.error("Failed to load user doc:", e);
+    if (profileNameEl) profileNameEl.innerText = displayName;
   }
 
-}
-
-const userRef = doc(db, "users", user.uid);
-
-const userSnap = await getDoc(userRef);
-
-if (userSnap.exists()) {
-
-  const data = userSnap.data();
-
-  if (data.name) {
-    document.getElementById("profileName").innerText =
-      data.name;
+  // ── COUNTRY VIA IP
+  try {
+    const res  = await fetch("https://ipapi.co/json/");
+    const data = await res.json();
+    const countryEl = document.getElementById("countryName");
+    if (countryEl) countryEl.textContent = data.country_name || "Unknown";
+  } catch(e) {
+    const countryEl = document.getElementById("countryName");
+    if (countryEl) countryEl.textContent = "Unknown";
   }
 
-  if (data.photo) {
-    document.getElementById("profilePhoto").src =
-      data.photo;
-  }
-
-}
-  // Stats
+  // ── STATS
   updateStatsUI();
-  await loadRealStats();
+  await loadRealStats(user.uid);
 
-  // Storage listener
+  // ── STORAGE LISTENER (sync stats across tabs)
   window.addEventListener("storage", (e) => {
-
-    if (
-      e.key === "favs" ||
-      e.key === "user_downloads" ||
-      e.key === "user_views"
-    ) {
+    if (["favs", "user_downloads", "user_views"].includes(e.key)) {
       updateStatsUI();
     }
-
   });
-
 });
 
-try {
-
-  const response =
-    await fetch("https://ipapi.co/json/");
-
-  const data =
-    await response.json();
-
-  document.getElementById("countryName")
-    .textContent = data.country_name;
-
-} catch (error) {
-
-  document.getElementById("countryName")
-    .textContent = "Unknown";
-
-}
-
-const saveBtn =
-  document.getElementById("saveProfileBtn");
-
+/* ══════════════════════════════════════════════
+   SAVE PROFILE BUTTON
+══════════════════════════════════════════════ */
+const saveBtn = document.getElementById("saveProfileBtn");
 if (saveBtn) {
-
   saveBtn.addEventListener("click", async () => {
-
-    const user = auth.currentUser;
-
+    const user  = auth.currentUser;
     if (!user) return;
 
-    const name =
-      document.getElementById("editName").value.trim();
+    const name  = document.getElementById("editName")?.value.trim();
+    const photo = document.getElementById("editPhoto")?.value.trim();
 
-    const photo =
-      document.getElementById("editPhoto").value.trim();
+    if (!name && !photo) return;
 
     try {
+      const updates = {};
+      if (name)  updates.name  = name;
+      if (photo) updates.photo = photo;
 
-      await setDoc(
-        doc(db, "users", user.uid),
-        {
-          name,
-          photo
-        },
-        { merge: true }
-      );
+      await setDoc(doc(db, "users", user.uid), updates, { merge: true });
 
-      alert("✅ Profile Updated");
+      if (name  && document.getElementById("profileName"))  document.getElementById("profileName").innerText = name;
+      if (photo && document.getElementById("profilePhoto")) document.getElementById("profilePhoto").src      = photo;
 
-      location.reload();
-
-    } catch (err) {
-
-      console.error(err);
-      alert("❌ Update Failed");
-
+      // visual feedback
+      saveBtn.innerText = "✅ Saved!";
+      setTimeout(() => {
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Profile';
+      }, 2000);
+    } catch(e) {
+      console.error("Save failed:", e);
+      saveBtn.innerText = "❌ Failed";
+      setTimeout(() => {
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Profile';
+      }, 2000);
     }
-
   });
-
 }
 
-// handle logout
+/* ══════════════════════════════════════════════
+   LOGOUT
+══════════════════════════════════════════════ */
 const logoutBtn = document.getElementById("logoutBtn");
 if (logoutBtn) {
   logoutBtn.addEventListener("click", async () => {
     try {
       await signOut(auth);
-      // clear all app data? original clears all localStorage, we do the same but keep only if required.
-      // original had localStorage.clear(); we keep to match expected behavior, but we also clear stats.
       localStorage.clear();
       window.location.href = "login.html";
-    } catch (error) {
-      console.error("Logout error:", error);
+    } catch(e) {
+      console.error("Logout error:", e);
     }
   });
 }
 
-// if user wants to add demo downloads increment from the UI double-click stat-box? Not needed but you can extend.
-// For better synergy, attach a small ripple effect on stats boxes (cosmetic)
+/* ══════════════════════════════════════════════
+   STAT BOX RIPPLE EFFECT
+══════════════════════════════════════════════ */
 document.querySelectorAll('.stat-box').forEach(box => {
   box.addEventListener('click', () => {
-    // just a fun micro-interaction, doesn't break flow
     box.style.transform = 'scale(0.98)';
     setTimeout(() => { box.style.transform = ''; }, 150);
   });
 });
 
-// Export utility for external pages (optional but safe)
+/* ══════════════════════════════════════════════
+   EXPORTS
+══════════════════════════════════════════════ */
 export { loadUserStats, updateStatsUI };
