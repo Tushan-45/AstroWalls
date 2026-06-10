@@ -397,10 +397,16 @@ async function loadWallpapers() {
 ════════════════════════════════════════════ */
 document.addEventListener("DOMContentLoaded", async () => {
 
-  document.body.style.visibility = "visible";
-  document.body.style.opacity = "1";
-
   const body = document.body;
+
+  /* ── AUTH GUARD ── */
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "login.html";
+      return;
+    }
+    localStorage.setItem("userEmail", user.email);
+    document.body.style.visibility = "visible";
 
   /* ── THEME TOGGLE ── */
   const themeBtn = document.getElementById("themeBtn");
@@ -528,4 +534,5 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   }
 
-});
+}); // end onAuthStateChanged
+}); // end DOMContentLoaded
